@@ -81,6 +81,10 @@
     <Rule Id="SA1412" Action="Warning" />
     <Rule Id="SA1600" Action="None" />
     <Rule Id="SA1609" Action="Warning" />
+    <Rule Id="TS1000" Action="Warning" />
+    <Rule Id="TS1001" Action="Warning" />
+    <Rule Id="TS1002" Action="Warning" />
+    <Rule Id="TS1003" Action="Warning" />
   </Rules>
   <Rules AnalyzerId="DocumentationAnalyzers" RuleNamespace="DocumentationAnalyzers">
     <Rule Id="DOC100" Action="Warning" />
