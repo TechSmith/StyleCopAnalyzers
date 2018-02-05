@@ -22,7 +22,9 @@ If ($Debug) {
 }
 
 # download nuget.exe if necessary
-$nuget = '..\.nuget\nuget.exe'
+# $nuget = '..\.nuget\nuget.exe'
+$nuget = 'D:\BuildAgent\tools\NuGet.CommandLine.4.1.0\tools\NuGet.exe'
+
 If (-not (Test-Path $nuget)) {
 	If (-not (Test-Path '..\.nuget')) {
 		mkdir '..\.nuget'
