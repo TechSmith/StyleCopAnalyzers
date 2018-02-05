@@ -46,7 +46,7 @@ namespace StyleCop.Analyzers.MaintainabilityRules
                CodeAction.Create(
                   "Use Linq's Any() :)",
                   cancellationToken => GetTransformedDocumentAsync( context.Document, diagnostic, cancellationToken ),
-                  nameof( TS1002CodeFixProvider ) ),
+                  nameof( TS1003CodeFixProvider ) ),
                diagnostic );
          }
       }
