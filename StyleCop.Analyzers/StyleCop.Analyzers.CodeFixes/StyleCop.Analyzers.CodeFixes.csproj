@@ -140,6 +140,7 @@
     <Compile Include="SpacingRules\SA1018CodeFixProvider.cs" />
     <Compile Include="SpacingRules\SA1025CodeFixProvider.cs" />
     <Compile Include="SpacingRules\SA1027CodeFixProvider.cs" />
+    <Compile Include="SpacingRules\TS1004CodeFixProvider.cs" />
     <Compile Include="SpacingRules\SA1028CodeFixProvider.cs" />
     <Compile Include="SpacingRules\TokenSpacingCodeFixProvider.cs" />
   </ItemGroup>

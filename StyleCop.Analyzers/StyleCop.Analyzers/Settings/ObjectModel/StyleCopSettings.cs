@@ -42,6 +42,8 @@ namespace StyleCop.Analyzers.Settings.ObjectModel
         /// </summary>
         private DocumentationSettings documentationRules;
 
+        private AlignmentSettings alignmentRules;
+
         /// <summary>
         /// Initializes a new instance of the <see cref="StyleCopSettings"/> class.
         /// </summary>
@@ -54,6 +56,7 @@ namespace StyleCop.Analyzers.Settings.ObjectModel
             this.maintainabilityRules = new MaintainabilitySettings();
             this.layoutRules = new LayoutSettings();
             this.documentationRules = new DocumentationSettings();
+            this.alignmentRules = new AlignmentSettings();
         }
 
         protected internal StyleCopSettings(JsonObject settingsObject)
@@ -99,7 +102,12 @@ namespace StyleCop.Analyzers.Settings.ObjectModel
                     this.documentationRules = new DocumentationSettings(childSettingsObject);
                     break;
 
-                default:
+               case "alignmentRules":
+                  kvp.AssertIsObject();
+                  this.alignmentRules = new AlignmentSettings( childSettingsObject );
+                  break;
+
+               default:
                     break;
                 }
             }
@@ -125,5 +133,8 @@ namespace StyleCop.Analyzers.Settings.ObjectModel
 
         public DocumentationSettings DocumentationRules =>
             this.documentationRules;
-    }
+
+        public AlignmentSettings AlignmentRules =>
+            this.alignmentRules;
+   }
 }

@@ -108,6 +108,7 @@
     <Compile Include="GeneratedCodeAnalysisExtensions.cs" />
     <Compile Include="Helpers\AccessLevel.cs" />
     <Compile Include="Helpers\AccessLevelHelper.cs" />
+    <Compile Include="Helpers\AlignmentHelper.cs" />
     <Compile Include="Helpers\DeclarationModifiersHelper.cs" />
     <Compile Include="Helpers\DiagnosticOptionsHelper.cs" />
     <Compile Include="Helpers\DocumentationCommentExtensions.cs" />
@@ -283,6 +284,7 @@
     <Compile Include="Settings\ObjectModel\DocumentationSettings.cs" />
     <Compile Include="Settings\ObjectModel\EndOfFileHandling.cs" />
     <Compile Include="Settings\ObjectModel\FileNamingConvention.cs" />
+    <Compile Include="Settings\ObjectModel\AlignmentSettings.cs" />
     <Compile Include="Settings\ObjectModel\LayoutSettings.cs" />
     <Compile Include="Settings\ObjectModel\MaintainabilitySettings.cs" />
     <Compile Include="Settings\ObjectModel\NamingSettings.cs" />
@@ -326,6 +328,7 @@
     <Compile Include="SpacingRules\SA1023DereferenceAndAccessOfSymbolsMustBeSpacedCorrectly.cs" />
     <Compile Include="SpacingRules\SA1024ColonsMustBeSpacedCorrectly.cs" />
     <Compile Include="SpacingRules\SA1025CodeMustNotContainMultipleWhitespaceInARow.cs" />
+    <Compile Include="SpacingRules\TS1004GettersAndSettersShouldBeAligned.cs" />
     <Compile Include="SpacingRules\SA1026CodeMustNotContainSpaceAfterNewKeywordInImplicitlyTypedArrayAllocation.cs" />
     <Compile Include="SpacingRules\SA1027TabsMustNotBeUsed.cs" />
     <Compile Include="SpacingRules\SA1028CodeMustNotContainTrailingWhitespace.cs" />
