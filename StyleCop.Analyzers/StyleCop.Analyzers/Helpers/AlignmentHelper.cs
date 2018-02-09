@@ -71,109 +71,28 @@ namespace StyleCop.Analyzers.Helpers
          return true;
       }
 
-      public static async Task<int> AdditionalSpacesToAddAsync( SyntaxNode root, Diagnostic diagnostic, double dAlignmentStandardDeviation, CancellationToken cancellationToken = default(CancellationToken) )
+      public static bool IsSimpleAssignment( SyntaxNode root, SyntaxToken token )
       {
-         int nLine = diagnostic.Location.GetLineSpan().StartLinePosition.Line;
-         int nColumn = diagnostic.Location.GetLineSpan().StartLinePosition.Character;
+         SyntaxNode node = root.FindNode( token.GetLocation().SourceSpan );
+         bool isAssignemnt = node.IsKind( SyntaxKind.SimpleAssignmentExpression );
 
-         return await AdditionalSpacesToAddAsync( root, nLine, nColumn, dAlignmentStandardDeviation, cancellationToken ).ConfigureAwait( false );
+         return isAssignemnt;
       }
 
-      public static async Task<int> AdditionalSpacesToAddAsync( SyntaxNode root, int nLine, int nColumn, double dAlignmentStandardDeviation, CancellationToken cancellationToken = default( CancellationToken ) )
+      public static bool IsSimpleSubscribing( SyntaxNode root, SyntaxToken token )
       {
-         List<Location> listGetterSetterLocations = new List<Location>();
-         foreach ( var token in root.DescendantTokens( descendIntoTrivia: true ).Where( t => t.IsKind( SyntaxKind.OpenBraceToken ) ) )
-         {
-            if ( IsSimpleGetterSetter( root, token ) )
-            {
-               listGetterSetterLocations.Add( token.GetLocation() );
-            }
-         }
+         SyntaxNode node = root.FindNode( token.GetLocation().SourceSpan );
+         bool isSubscribing = node.IsKind( SyntaxKind.AddAssignmentExpression );
 
-         List<Location> listRelevantGetterSetterLocations = new List<Location>();
-         for ( int nL = nLine - 1; nL >= 0; nL-- )
-         {
-            var previousLineMatch = listGetterSetterLocations.Where( loc => loc.GetLineSpan().StartLinePosition.Line == nL );
-            if ( !previousLineMatch.Any() )
-            {
-               // Might have been a new line that provided the gap or something.  I would like to handle this; but for now
-               // let's skip it
-               break;
-            }
-            else
-            {
-               listRelevantGetterSetterLocations.Add( previousLineMatch.First() );
-            }
-         }
+         return isSubscribing;
+      }
 
-         for ( int nL = nLine /*+ 1*/; nL < int.MaxValue; nL++ )
-         {
-            var nextLineMatch = listGetterSetterLocations.Where( loc => loc.GetLineSpan().StartLinePosition.Line == nL );
-            if ( !nextLineMatch.Any() )
-            {
-               // Must have been a new line or something.  Would want to handle this.  But for now lets stop
-               break;
-            }
-            else
-            {
-               listRelevantGetterSetterLocations.Add( nextLineMatch.First() );
-            }
-         }
+      public static bool IsSimpleUnsubscribing( SyntaxNode root, SyntaxToken token )
+      {
+         SyntaxNode node = root.FindNode( token.GetLocation().SourceSpan );
+         bool isUnsubscribing = node.IsKind( SyntaxKind.SubtractAssignmentExpression );
 
-         if ( !listRelevantGetterSetterLocations.Any() )
-         {
-            //Hmmmm; I wonder if this should ever happen.  Whether I should assert or not?  Anyhoo
-            return 0;
-         }
-
-         // Let's find average column across the relevant getter and setter locations
-         int nTotal = 0;
-         int nTotalofSquaredItems = 0;
-         int nLinesConsidered = 0;
-         foreach ( var getterSetterLocation in listRelevantGetterSetterLocations )
-         {
-            int nGetterSetterColumn = ColumnForOneAwayFromVariable( root, getterSetterLocation );
-
-            nTotal += nGetterSetterColumn;
-            nTotalofSquaredItems += nGetterSetterColumn * nGetterSetterColumn;
-            nLinesConsidered++;
-         }
-
-         double dTotalSquaredDivided = nTotal * nTotal / (double)nLinesConsidered;
-         double dDifferencedFromTotalSquared = nTotalofSquaredItems - dTotalSquaredDivided;
-         double dVariance = dDifferencedFromTotalSquared / ( nLinesConsidered - 1 );
-         double dStandardDeviation = Math.Sqrt( dVariance );
-
-         double dAverageColumn = nTotal / (double)nLinesConsidered;
-
-         int nDesiredColumn = nColumn;
-         foreach ( var getterSetterLocation in listRelevantGetterSetterLocations )
-         {
-            int nGetterSetterLine = getterSetterLocation.GetLineSpan().StartLinePosition.Line;
-
-            if ( nGetterSetterLine == nLine )
-            {
-               continue;
-            }
-
-            int nGetterSetterColumn = ColumnForOneAwayFromVariable( root, getterSetterLocation );
-
-            if ( nGetterSetterColumn > nDesiredColumn )
-            {
-               // Before we just change the desired column let's consider if this column stands out compared to other lines
-               double dZScore = ( nGetterSetterColumn - dAverageColumn ) / dStandardDeviation;
-
-               if ( dZScore > dAlignmentStandardDeviation || dZScore < -dAlignmentStandardDeviation )
-               {
-                  // Going to skip this outlier
-                  continue;
-               }
-
-               nDesiredColumn = nGetterSetterColumn;
-            }
-         }
-
-         return nDesiredColumn - nColumn;
+         return isUnsubscribing;
       }
 
       public static string WhiteSpaceString( int nCharacters )
@@ -194,6 +113,111 @@ namespace StyleCop.Analyzers.Helpers
          nGetterSetterColumn = prevToken.GetLocation().GetLineSpan().EndLinePosition.Character + 1/*One away from end*/;
 
          return nGetterSetterColumn;
+      }
+
+      public static async Task<int> AdditionalSpacesToAddForConditionAsync( SyntaxNode root, Diagnostic diagnostic, double dAlignmentStandardDeviation, Func<SyntaxNode, SyntaxToken, bool> conditionFunc, SyntaxKind tokenType, CancellationToken cancellationToken = default( CancellationToken ) )
+      {
+         int nLine = diagnostic.Location.GetLineSpan().StartLinePosition.Line;
+         int nColumn = diagnostic.Location.GetLineSpan().StartLinePosition.Character;
+
+         return await AdditionalSpacesToAddForConditionAsync( root, nLine, nColumn, dAlignmentStandardDeviation, conditionFunc, tokenType, cancellationToken ).ConfigureAwait( false );
+      }
+
+      public static async Task<int> AdditionalSpacesToAddForConditionAsync( SyntaxNode root, int nLine, int nColumn, double dAlignmentStandardDeviation, Func<SyntaxNode, SyntaxToken, bool> conditionFunc, SyntaxKind tokenType, CancellationToken cancellationToken = default( CancellationToken ) )
+      {
+         List<Location> listAssignmentLocations = new List<Location>();
+         foreach ( var token in root.DescendantTokens( descendIntoTrivia: true ).Where( t => t.IsKind( tokenType ) ) )
+         {
+            if ( conditionFunc( root, token ) )
+            {
+               listAssignmentLocations.Add( token.GetLocation() );
+            }
+         }
+
+         List<Location> listRelevantAssignmentLocations = new List<Location>();
+         for ( int nL = nLine - 1; nL >= 0; nL-- )
+         {
+            var previousLineMatch = listAssignmentLocations.Where( loc => loc.GetLineSpan().StartLinePosition.Line == nL );
+            if ( !previousLineMatch.Any() )
+            {
+               // Might have been a new line that provided the gap or something.  I would like to handle this; but for now
+               // let's skip it
+               break;
+            }
+            else
+            {
+               listRelevantAssignmentLocations.Add( previousLineMatch.First() );
+            }
+         }
+
+         for ( int nL = nLine /*+ 1*/; nL < int.MaxValue; nL++ )
+         {
+            var nextLineMatch = listAssignmentLocations.Where( loc => loc.GetLineSpan().StartLinePosition.Line == nL );
+            if ( !nextLineMatch.Any() )
+            {
+               // Must have been a new line or something.  Would want to handle this.  But for now lets stop
+               break;
+            }
+            else
+            {
+               listRelevantAssignmentLocations.Add( nextLineMatch.First() );
+            }
+         }
+
+         if ( !listRelevantAssignmentLocations.Any() )
+         {
+            //Hmmmm; I wonder if this should ever happen.  Whether I should assert or not?  Anyhoo
+            return 0;
+         }
+
+         // Let's find average column across the relevant getter and setter locations
+         int nTotal = 0;
+         int nTotalofSquaredItems = 0;
+         int nLinesConsidered = 0;
+         foreach ( var assignmentLocation in listRelevantAssignmentLocations )
+         {
+            int nGetterSetterColumn = ColumnForOneAwayFromVariable( root, assignmentLocation );
+
+            nTotal += nGetterSetterColumn;
+            nTotalofSquaredItems += nGetterSetterColumn * nGetterSetterColumn;
+            nLinesConsidered++;
+         }
+
+         double dTotalSquaredDivided = nTotal * nTotal / (double)nLinesConsidered;
+         double dDifferencedFromTotalSquared = nTotalofSquaredItems - dTotalSquaredDivided;
+         double dVariance = dDifferencedFromTotalSquared / ( nLinesConsidered - 1 );
+         double dStandardDeviation = Math.Sqrt( dVariance );
+
+         double dAverageColumn = nTotal / (double)nLinesConsidered;
+
+         int nDesiredColumn = nColumn;
+         foreach ( var assignmentLocation in listRelevantAssignmentLocations )
+         {
+            int nAssignmentLine = assignmentLocation.GetLineSpan().StartLinePosition.Line;
+
+            if ( nAssignmentLine == nLine )
+            {
+               continue;
+            }
+
+            int nAssignmentColumn = ColumnForOneAwayFromVariable( root, assignmentLocation );
+
+            if ( nAssignmentColumn > nDesiredColumn )
+            {
+               // Before we just change the desired column let's consider if this column stands out compared to other lines
+               double dZScore = ( nAssignmentColumn - dAverageColumn ) / dStandardDeviation;
+
+               if ( dZScore > dAlignmentStandardDeviation || dZScore < -dAlignmentStandardDeviation )
+               {
+                  // Going to skip this outlier
+                  continue;
+               }
+
+               nDesiredColumn = nAssignmentColumn;
+            }
+         }
+
+         return nDesiredColumn - nColumn;
       }
    }
 }

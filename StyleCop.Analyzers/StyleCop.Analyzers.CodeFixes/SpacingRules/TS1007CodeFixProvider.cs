@@ -16,18 +16,18 @@ namespace StyleCop.Analyzers.SpacingRules
    using Microsoft.CodeAnalysis.Text;
 
    /// <summary>
-   /// Implements a code fix for <see cref="SA1028CodeMustNotContainTrailingWhitespace"/>.
+   /// Implements a code fix for <see cref="TS1005AssignmentsShouldBeAligned"/>.
    /// </summary>
    /// <remarks>
    /// <para>To fix a violation of this rule, remove any whitespace at the end of a line of code.</para>
    /// </remarks>
-   [ExportCodeFixProvider(LanguageNames.CSharp, Name = nameof(TS1004CodeFixProvider))]
+   [ExportCodeFixProvider(LanguageNames.CSharp, Name = nameof(TS1007CodeFixProvider))]
     [Shared]
-    internal class TS1004CodeFixProvider : CodeFixProvider
+    internal class TS1007CodeFixProvider : CodeFixProvider
     {
         /// <inheritdoc/>
         public override ImmutableArray<string> FixableDiagnosticIds { get; } =
-            ImmutableArray.Create(TS1004GettersAndSettersShouldBeAligned.DiagnosticId);
+            ImmutableArray.Create(TS1007UnsubscribingShouldBeAligned.DiagnosticId);
 
         /// <inheritdoc/>
         public sealed override FixAllProvider GetFixAllProvider()
@@ -43,9 +43,9 @@ namespace StyleCop.Analyzers.SpacingRules
             {
                 context.RegisterCodeFix(
                     CodeAction.Create(
-                        "Fix mis-aligned getters and setters :)",
+                        "Fix mis-aligned unsubscribing :)",
                         ct => FixWhitespaceAsync( context.Document, diagnostic, settings.AlignmentRules.AlignmentStandardDeviation, ct),
-                        nameof( TS1004CodeFixProvider ) ),
+                        nameof( TS1007CodeFixProvider ) ),
                     diagnostic);
             }
 
@@ -56,7 +56,7 @@ namespace StyleCop.Analyzers.SpacingRules
         {
             var text = await document.GetTextAsync(cancellationToken).ConfigureAwait(false);
             SyntaxNode root = await document.GetSyntaxRootAsync( cancellationToken ).ConfigureAwait( false );
-            int nCharToAdd = await AlignmentHelper.AdditionalSpacesToAddForConditionAsync( root, diagnostic, dAlignmentStandardDeviation, AlignmentHelper.IsSimpleGetterSetter, SyntaxKind.OpenBraceToken, cancellationToken ).ConfigureAwait( false );
+            int nCharToAdd = await AlignmentHelper.AdditionalSpacesToAddForConditionAsync( root, diagnostic, dAlignmentStandardDeviation, AlignmentHelper.IsSimpleUnsubscribing, SyntaxKind.MinusEqualsToken, cancellationToken ).ConfigureAwait( false );
             var newText = text.Replace( new TextSpan( diagnostic.Location.SourceSpan.Start, 0 ), AlignmentHelper.WhiteSpaceString( nCharToAdd ) );
             return document.WithText( newText );
         }
@@ -67,7 +67,7 @@ namespace StyleCop.Analyzers.SpacingRules
                 new FixAll();
 
             protected override string CodeActionTitle =>
-                "Fix mis-aligned getters and setters :)";
+                "Fix mis-aligned unsubscribing :)";
 
             protected override async Task<SyntaxNode> FixAllInDocumentAsync(FixAllContext fixAllContext, Document document, ImmutableArray<Diagnostic> diagnostics)
             {
@@ -83,7 +83,7 @@ namespace StyleCop.Analyzers.SpacingRules
                 for (int nDiagnostic = diagnostics.Length; nDiagnostic-->0; )
                 {
                    var diagnostic = diagnostics[nDiagnostic];
-                   int nCharToAdd = await AlignmentHelper.AdditionalSpacesToAddForConditionAsync( root, diagnostic, settings.AlignmentRules.AlignmentStandardDeviation, AlignmentHelper.IsSimpleGetterSetter, SyntaxKind.OpenBraceToken, fixAllContext.CancellationToken ).ConfigureAwait( false );
+                   int nCharToAdd = await AlignmentHelper.AdditionalSpacesToAddForConditionAsync( root, diagnostic, settings.AlignmentRules.AlignmentStandardDeviation, AlignmentHelper.IsSimpleUnsubscribing, SyntaxKind.MinusEqualsToken, fixAllContext.CancellationToken ).ConfigureAwait( false );
                    text = text.Replace( new TextSpan( diagnostic.Location.SourceSpan.Start, 0 ), AlignmentHelper.WhiteSpaceString( nCharToAdd ) );
                 }
 

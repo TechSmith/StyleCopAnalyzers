@@ -86,6 +86,9 @@
     <Rule Id="TS1002" Action="Warning" />
     <Rule Id="TS1003" Action="Warning" />
     <Rule Id="TS1004" Action="Warning" />
+    <Rule Id="TS1005" Action="Warning" />
+    <Rule Id="TS1006" Action="Warning" />
+    <Rule Id="TS1007" Action="Warning" />
   </Rules>
   <Rules AnalyzerId="DocumentationAnalyzers" RuleNamespace="DocumentationAnalyzers">
     <Rule Id="DOC100" Action="Warning" />
